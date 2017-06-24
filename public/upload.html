@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teach Me</title>
+  <link rel="stylesheet" href="style/spectre.min.css" />
+  <link rel="stylesheet" href="style/spectre-exp.min.css" />
+  <link rel="stylesheet" href="style/spectre-icons.min.css" />
+</head>
+<style>
+html,
+body,
+#upload-page {
+  height: 100%;
+}
+
+#upload-page {
+  display: flex;
+}
+
+#upload-form {
+  max-width: 400px;
+  margin: auto;
+}
+</style>
+<body>
+  <div id="upload-page">
+    <form id="upload-form" enctype="multipart/form-data" action="/upload" method="post">
+      <div class="form-group">
+        <label class="form-label" for="file">file</label>
+        <input class="form-input" type="file" id="file" name="uploadfile" required/>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary" type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
