@@ -1,9 +1,11 @@
 FROM golang:1.8
 
-WORKDIR /go/src/app
-COPY . .
+WORKDIR /go/src/
+COPY ./public ./public
+COPY ./src/go-teach-me ./go-teach-me
 
-RUN go-wrapper download
-RUN go-wrapper install
+RUN go get github.com/lib/pq
 
-CMD ["go-wrapper", "run"] # ["app"]
+RUN go build go-teach-me/app
+
+CMD ./app
