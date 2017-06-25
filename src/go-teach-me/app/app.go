@@ -18,12 +18,18 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
-  users.InsertUser("Tim", "Robbins", "tim@sweetiq.com", "test", 2)
+  r.ParseForm()
+  err := users.InsertUser(r.Form["first-name"][0], r.Form["last-name"][0], r.Form["email"][0], r.Form["password"][0], 2)
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+    return
+  }
   fmt.Fprintf(w, "PONG")
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-  user := users.GetUser("tim@sweetiq.com", "test")
+  r.ParseForm()
+  user := users.GetUser(r.Form["email"][0], r.Form["password"][0])
 
   js, err := json.Marshal(user)
   if err != nil {
