@@ -4,6 +4,7 @@ WORKDIR /go/src/
 COPY ./public ./public
 COPY ./src/go-teach-me ./go-teach-me
 
+RUN go get github.com/google/uuid
 RUN go get github.com/lib/pq
 RUN go get golang.org/x/crypto/bcrypt
 

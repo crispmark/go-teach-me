@@ -1,5 +1,3 @@
-CREATE SCHEMA teachme;
-SET search_path = teachme;
 CREATE SEQUENCE user_group_user_group_id_seq;
 CREATE TABLE user_groups (
     user_group_id integer primary key not null default nextval('user_group_user_group_id_seq'::regclass),

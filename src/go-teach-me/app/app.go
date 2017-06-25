@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"go-teach-me/database"
@@ -45,7 +46,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func download(w http.ResponseWriter, r *http.Request) {
-	filename, data := fileIO.GetFile(2)
+	fileID := strings.Split(r.URL.Path, "/")[2]
+	if fileID == "" {
+		http.Error(w, "No file ID provided", http.StatusInternalServerError)
+		return
+	}
+	filename, data := fileIO.GetFile(fileID)
 	http.ServeContent(w, r, filename, time.Now(), bytes.NewReader(data))
 }
 
@@ -65,18 +71,31 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type customHandler struct {
+	defaultHandler http.Handler
+}
+
+func (ch customHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if strings.HasPrefix(r.URL.Path, "/download/") {
+		download(w, r)
+		return
+	}
+
+	ch.defaultHandler.ServeHTTP(w, r)
+}
+
 func main() {
 	err := database.Initialize()
 	if err != nil {
 		panic(err)
 	}
 
-	http.Handle("/", http.FileServer(http.Dir("public")))
+	http.Handle("/", customHandler{http.FileServer(http.Dir("public"))})
 	http.HandleFunc("/ping", ping)
 
 	http.HandleFunc("/upload", upload)
-	http.HandleFunc("/download", download)
 	http.HandleFunc("/register", createUserHandler)
 	http.HandleFunc("/login", login)
+
 	http.ListenAndServe(":8080", nil)
 }

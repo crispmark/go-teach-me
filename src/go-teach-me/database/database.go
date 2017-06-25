@@ -8,7 +8,7 @@ import (
 
 var (
 	DBCon    *sql.DB
-	connInfo = "postgres://postgres@127.0.0.1:5432?sslmode=disable"
+	connInfo = "postgres://teachme@127.0.0.1:5432/teachme?sslmode=disable"
 )
 
 func Initialize() (err error) {

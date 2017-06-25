@@ -2,7 +2,6 @@ package users
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"go-teach-me/database"
@@ -37,8 +36,8 @@ func GetUser(email string, password string) (User, error) {
 	var updatedAt time.Time
 
 	var hashedPassword string
-	resultRow := database.DBCon.QueryRow("SELECT user_id, first_name, last_name, password, user_group_id, created_at, updated_at FROM teachme.users WHERE email = $1", email)
-  resultRow.Scan(&userID, &firstName, &lastName, &hashedPassword, &userGroupID, &createdAt, &updatedAt)
+	resultRow := database.DBCon.QueryRow("SELECT user_id, first_name, last_name, password, user_group_id, created_at, updated_at FROM users WHERE email = $1", email)
+	resultRow.Scan(&userID, &firstName, &lastName, &hashedPassword, &userGroupID, &createdAt, &updatedAt)
 	if userID == 0 {
 		return User{}, errors.New("User with provided email and password not found")
 	}
@@ -51,12 +50,10 @@ func GetUser(email string, password string) (User, error) {
 
 func InsertUser(firstName string, lastName string, email string, password string, userGroupID int) error {
 	hashedPass, err := hashPassword(password)
-	fmt.Println(hashedPass)
-
 	if err != nil {
 		return err
 	}
-	stmt, err := database.DBCon.Prepare("INSERT INTO teachme.users(first_name, last_name, email, password, user_group_id) VALUES($1, $2, $3, $4, $5)")
+	stmt, err := database.DBCon.Prepare("INSERT INTO users(first_name, last_name, email, password, user_group_id) VALUES($1, $2, $3, $4, $5)")
 	if err != nil {
 		return err
 	}
