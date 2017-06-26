@@ -27,7 +27,7 @@ func hashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func GetUser(email string, password string) (User, error) {
+func GetUser(email string, password string) (*User, error) {
 	var userID int
 	var firstName string
 	var lastName string
@@ -39,13 +39,13 @@ func GetUser(email string, password string) (User, error) {
 	resultRow := database.DBCon.QueryRow("SELECT user_id, first_name, last_name, password, user_group_id, created_at, updated_at FROM users WHERE email = $1", email)
 	resultRow.Scan(&userID, &firstName, &lastName, &hashedPassword, &userGroupID, &createdAt, &updatedAt)
 	if userID == 0 {
-		return User{}, errors.New("User with provided email and password not found")
+		return &User{}, errors.New("User with provided email and password not found")
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		return User{}, err
+		return &User{}, err
 	}
-	return User{UserID: userID, FirstName: firstName, LastName: lastName, Email: email, UserGroupID: userGroupID, CreatedAt: createdAt, UpdatedAt: updatedAt}, nil
+	return &User{UserID: userID, FirstName: firstName, LastName: lastName, Email: email, UserGroupID: userGroupID, CreatedAt: createdAt, UpdatedAt: updatedAt}, nil
 }
 
 func InsertUser(firstName string, lastName string, email string, password string, userGroupID int) error {

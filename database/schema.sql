@@ -23,11 +23,9 @@ CREATE TABLE users (
 );
 ALTER SEQUENCE user_user_id_seq OWNED BY users.user_id;
 
-CREATE SEQUENCE file_id_seq;
 CREATE TABLE files (
-    file_id integer primary key not null default nextval('file_id_seq'::regclass),
+    file_id varchar(36) primary key,
     filename varchar(60) NOT NULL,
     data bytea NOT NULL,
     updated_at timestamp NOT NULL default current_timestamp
 );
-ALTER SEQUENCE file_id_seq OWNED BY files.file_id;

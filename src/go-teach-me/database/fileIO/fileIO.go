@@ -5,8 +5,9 @@ import (
 	"log"
 	"mime/multipart"
 
-	"github.com/google/uuid"
 	"go-teach-me/database"
+
+	"github.com/google/uuid"
 )
 
 func GetFile(file_id string) (string, []byte) {
