@@ -2,6 +2,7 @@ FROM golang:1.8
 
 WORKDIR /go/src/
 COPY ./public ./public
+COPY ./templates ./templates
 COPY ./src/go-teach-me ./go-teach-me
 
 RUN go get github.com/google/uuid
