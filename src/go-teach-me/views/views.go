@@ -4,20 +4,20 @@ import (
 	"html/template"
 	"net/http"
 
-	"go-teach-me/database/fileIO"
-	"go-teach-me/database/users"
+	"go-teach-me/models/files"
+	"go-teach-me/models/users"
 	"go-teach-me/sessionStore"
 
 	"github.com/gorilla/mux"
 )
 
-func renderIndex(w http.ResponseWriter, user *users.User, files *[]fileIO.File) {
+func renderIndex(w http.ResponseWriter, user *users.User, fileArray []*files.File) {
 	data := struct {
 		User  *users.User
-		Files *[]fileIO.File
+		Files []*files.File
 	}{
 		user,
-		files,
+		fileArray,
 	}
 	t, _ := template.ParseFiles("templates/index.html", "templates/nav.html")
 	t.Execute(w, data)
@@ -43,7 +43,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if user == nil {
 		renderLogin(w)
 	} else {
-		files, _ := fileIO.GetAllFileInfo()
+		files, _ := files.GetAllFileInfo()
 		renderIndex(w, user, files)
 	}
 }

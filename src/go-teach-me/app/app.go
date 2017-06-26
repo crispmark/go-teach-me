@@ -9,7 +9,7 @@ import (
 	"go-teach-me/actions"
 	"go-teach-me/controllers"
 	"go-teach-me/database"
-	"go-teach-me/database/users"
+	"go-teach-me/models/users"
 	"go-teach-me/views"
 
 	"github.com/gorilla/mux"

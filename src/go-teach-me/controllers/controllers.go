@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"go-teach-me/database/fileIO"
+	"go-teach-me/models/files"
 	"go-teach-me/sessionStore"
 
 	"github.com/gorilla/mux"
@@ -19,7 +19,7 @@ func ping(w http.ResponseWriter, r *http.Request) {
 
 func download(w http.ResponseWriter, r *http.Request) {
 	fileID := mux.Vars(r)["file_id"]
-	filename, data := fileIO.GetFile(fileID)
+	filename, data := files.GetFile(fileID)
 	if filename == "" {
 		http.NotFound(w, r)
 		return

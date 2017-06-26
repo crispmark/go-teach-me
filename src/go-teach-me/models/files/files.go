@@ -1,4 +1,4 @@
-package fileIO
+package files
 
 import (
 	"io"
@@ -24,12 +24,12 @@ func GetFile(file_id string) (string, []byte) {
 	return filename, data
 }
 
-func GetAllFileInfo() (*[]File, error) {
+func GetAllFileInfo() ([]*File, error) {
 	rows, err := database.DBCon.Query("SELECT file_id, filename, created_at FROM files")
 	if err != nil {
 		return nil, err
 	}
-	var files []File
+	var files []*File
 
 	defer rows.Close()
 	for rows.Next() {
@@ -38,11 +38,11 @@ func GetAllFileInfo() (*[]File, error) {
 		var createdAt time.Time
 		err = rows.Scan(&fileID, &filename, &createdAt)
 		if err != nil {
-			return &files, err
+			return files, err
 		}
-		files = append(files, File{FileID: fileID, Filename: filename, CreatedAt: createdAt})
+		files = append(files, &File{FileID: fileID, Filename: filename, CreatedAt: createdAt})
 	}
-	return &files, nil
+	return files, nil
 }
 
 func InsertFile(file multipart.File, handler *multipart.FileHeader) {

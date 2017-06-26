@@ -3,8 +3,8 @@ package actions
 import (
 	"net/http"
 
-	"go-teach-me/database/fileIO"
-	"go-teach-me/database/users"
+	"go-teach-me/models/files"
+	"go-teach-me/models/users"
 	"go-teach-me/sessionStore"
 
 	"github.com/gorilla/mux"
@@ -48,7 +48,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	fileIO.InsertFile(file, handler)
+	files.InsertFile(file, handler)
 	http.Redirect(w, r, "/retswerk/upload", 303)
 }
 

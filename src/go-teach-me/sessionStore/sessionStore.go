@@ -3,7 +3,7 @@ package sessionStore
 import (
 	"net/http"
 
-	"go-teach-me/database/users"
+	"go-teach-me/models/users"
 
 	"github.com/gorilla/sessions"
 )
