@@ -25,14 +25,14 @@ body,
 <body>
   {{ template "nav" . }}
   <div id="upload-page">
-    <form id="upload-form" enctype="multipart/form-data" action="/upload" method="post">
+    <form id="upload-form" enctype="multipart/form-data" action="/api/upload" method="post">
       <div class="form-group">
         <label class="form-label" for="file">file</label>
         <input class="form-input" type="file" id="file" name="uploadfile" required/>
       </div>
       <div class="form-group">
         <button class="btn btn-primary" type="submit">Submit</button>
-        <a class="btn btn-link" href="/">Cancel</a>
+        <a class="btn btn-link" href="/retswerk/">Cancel</a>
       </div>
     </form>
   </div>
