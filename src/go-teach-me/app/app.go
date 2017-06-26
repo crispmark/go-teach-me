@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"go-teach-me/actions"
 	"go-teach-me/controllers"
 	"go-teach-me/database"
 	"go-teach-me/database/users"
@@ -29,6 +30,7 @@ func main() {
 	r.HandleFunc("/", index)
 	views.MountViewsRouter(r.PathPrefix("/retswerk").Subrouter())
 	controllers.MountControllersRouter(r.PathPrefix("/api").Subrouter())
+	actions.MountActionsRouter(r.PathPrefix("/actions").Subrouter())
 
 	srv := &http.Server{
 		Handler:      r,
