@@ -1,0 +1,14 @@
+{{ define "nav" }}
+<header class="navbar">
+  <section class="navbar-section">
+    <a href="/" class="navbar-brand mr-10">The Retswerk</a>
+    <a href="/upload" class="btn btn-link">Upload</a>
+  </section>
+  <section class="navbar-section">
+    <div>
+      {{ .FirstName }}
+    </div>
+    <a href="/logout" class="btn btn-link">Logout</a>
+  </section>
+</header>
+{{ end }}

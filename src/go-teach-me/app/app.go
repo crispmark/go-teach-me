@@ -5,9 +5,9 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"go-teach-me/database"
@@ -37,24 +37,27 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "PONG")
 }
 
-func createUserHandler(w http.ResponseWriter, r *http.Request) {
+func register(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("templates/register.html")
+		t.Execute(w, nil)
+		return
+	}
 	r.ParseForm()
 	err := users.InsertUser(r.Form["first-name"][0], r.Form["last-name"][0], r.Form["email"][0], r.Form["password"][0], 2)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "PONG")
+	http.Redirect(w, r, "/", 307)
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session")
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400 * 7,
-		Secure:   false,
-		HttpOnly: true,
+	if r.Method == "GET" {
+		http.Redirect(w, r, "/", 307)
+		return
 	}
+	session, _ := store.Get(r, "session")
 	r.ParseForm()
 	user, err := users.GetUser(r.Form["email"][0], r.Form["password"][0])
 	if err != nil {
@@ -62,10 +65,16 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session.Values["authenticatedUser"] = user
-	session.Values["userID"] = user.UserID
 	session.Save(r, w)
+	http.Redirect(w, r, "/", 307)
+}
 
-	fmt.Fprintf(w, "Signed in!")
+func logout(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
+	session.Options.MaxAge = -1
+	session.Save(r, w)
+	t, _ := template.ParseFiles("templates/login.html")
+	t.Execute(w, nil)
 }
 
 func self(w http.ResponseWriter, r *http.Request) {
@@ -94,9 +103,10 @@ func download(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, filename, time.Now(), bytes.NewReader(data))
 }
 
-func upload(w http.ResponseWriter, r *http.Request) {
+func upload(w http.ResponseWriter, r *http.Request, user *users.User) {
 	if r.Method == "GET" {
-		http.Redirect(w, r, "/upload.html", 301)
+		t, _ := template.ParseFiles("templates/upload.html", "templates/nav.html")
+		t.Execute(w, user)
 	} else {
 		r.ParseMultipartForm(32 << 20)
 		file, handler, err := r.FormFile("uploadfile")
@@ -105,22 +115,38 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer file.Close()
-		http.Redirect(w, r, "/upload.html", 301)
+		t, _ := template.ParseFiles("templates/upload.html", "templates/nav.html")
+		t.Execute(w, user)
 		fileIO.InsertFile(file, handler)
 	}
 }
 
-type customHandler struct {
-	defaultHandler http.Handler
+func authHandleFunc(r *mux.Router, pattern string, handler func(http.ResponseWriter, *http.Request, *users.User)) {
+	r.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		user := getSessionUser(r)
+		if user == nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		handler(w, r, user)
+	})
 }
 
-func (ch customHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if strings.HasPrefix(r.URL.Path, "/download/") {
-		download(w, r)
+func index(w http.ResponseWriter, r *http.Request) {
+	user := getSessionUser(r)
+	if user == nil {
+		t, _ := template.ParseFiles("templates/login.html")
+		t.Execute(w, "")
 		return
 	}
+	files, _ := fileIO.GetAllFileInfo()
+	t, _ := template.ParseFiles("templates/index.html", "templates/nav.html")
+	t.Execute(w, userFiles{User: user, Files: files})
+}
 
-	ch.defaultHandler.ServeHTTP(w, r)
+type userFiles struct {
+	User  *users.User
+	Files *[]fileIO.File
 }
 
 func main() {
@@ -131,15 +157,14 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/static/", 301)
-	})
+	r.HandleFunc("/", index)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
 	r.HandleFunc("/ping", ping)
-	r.HandleFunc("/upload", upload)
+	authHandleFunc(r, "/upload", upload)
 	r.HandleFunc("/download/{file_id}/{filename}", download)
-	r.HandleFunc("/register", createUserHandler)
+	r.HandleFunc("/register", register)
 	r.HandleFunc("/login", login)
+	r.HandleFunc("/logout", logout)
 	r.HandleFunc("/self", self)
 
 	srv := &http.Server{

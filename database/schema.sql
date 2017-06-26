@@ -27,5 +27,5 @@ CREATE TABLE files (
     file_id varchar(36) primary key,
     filename varchar(60) NOT NULL,
     data bytea NOT NULL,
-    updated_at timestamp NOT NULL default current_timestamp
+    created_at timestamp NOT NULL default current_timestamp
 );

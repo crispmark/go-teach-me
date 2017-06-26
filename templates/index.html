@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teach Me</title>
+  <link rel="stylesheet" href="static/style/spectre.min.css" />
+  <link rel="stylesheet" href="static/style/spectre-exp.min.css" />
+  <link rel="stylesheet" href="static/style/spectre-icons.min.css" />
+</head>
+<style>
+.panel {
+  max-width: 600px;
+  margin: auto;
+}
+</style>
+<body>
+  {{ template "nav" .User }}
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Uploaded files</div>
+    </div>
+    <div class="panel-body">
+      {{range .Files}}
+      <div class="tile">
+        <div class="tile-icon">
+          <div class="example-tile-icon">
+            <i class="icon icon-file centered"></i>
+          </div>
+        </div>
+        <div class="tile-content">
+          <p class="tile-title">{{.Filename}}</p>
+          <p class="tile-subtitle">Uploaded {{.CreatedAt.Format "Jan 02, 2006 15:04:05"}}</p>
+        </div>
+        <div class="tile-action">
+          <a href="/download/{{.FileID}}/{{.Filename}}" class="btn btn-primary" download>
+            <i class="icon icon-download"></i>
+          </a>
+        </div>
+      </div>
+      {{end}}
+    </div>
+    <div class="panel-footer">
+      <!-- buttons or inputs -->
+    </div>
+  </div>
+</body>
+</html>
