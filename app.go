@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/gob"
-	"log"
 	"net/http"
-	"time"
 
 	"go-teach-me/actions"
 	"go-teach-me/controllers"
@@ -13,6 +11,7 @@ import (
 	"go-teach-me/views"
 
 	"github.com/gorilla/mux"
+	"google.golang.org/appengine"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -32,12 +31,6 @@ func main() {
 	controllers.MountControllersRouter(r.PathPrefix("/api").Subrouter())
 	actions.MountActionsRouter(r.PathPrefix("/actions").Subrouter())
 
-	srv := &http.Server{
-		Handler:      r,
-		Addr:         "127.0.0.1:8080",
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-
-	log.Fatal(srv.ListenAndServe())
+	http.Handle("/", r)
+	appengine.Main()
 }
