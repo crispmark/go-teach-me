@@ -48,7 +48,11 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	files.InsertFile(file, handler)
+	err = files.InsertFile(file, handler)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/retswerk/upload", 303)
 }
 
