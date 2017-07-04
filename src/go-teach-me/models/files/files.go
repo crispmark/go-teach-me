@@ -2,7 +2,7 @@ package files
 
 import (
 	"io"
-	"log"
+	"errors"
 	"mime/multipart"
 	"time"
 
@@ -45,17 +45,21 @@ func GetAllFileInfo() ([]*File, error) {
 	return files, nil
 }
 
-func InsertFile(file multipart.File, handler *multipart.FileHeader) {
+func InsertFile(file multipart.File, handler *multipart.FileHeader) error {
 	length, _ := file.Seek(0, 2)
+	if (length > 10485760) {
+		return errors.New("File size must be less than 10 MB")
+	}
 	file.Seek(0, 0)
 	token := make([]byte, length)
 	io.ReadFull(file, token)
 	stmt, err := database.DBCon.Prepare("INSERT INTO files(file_id, filename, data) VALUES($1, $2, $3)")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	_, err = stmt.Exec(uuid.New().String(), handler.Filename, token)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
